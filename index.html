@@ -141,6 +141,17 @@
       <div class="muted" id="taskMsg" style="font-size:12px;margin-top:8px"></div>
     </div>
 
+    <div class="glass card" id="deadlineCard">
+      <div class="row">
+        <div>
+          <div class="eyebrow">До конца главы</div>
+          <div style="font-size:25px;font-weight:800;margin-top:4px"><span id="daysRemainingToday">30</span> дней</div>
+          <div class="muted" id="deadlineToday" style="font-size:13px;margin-top:3px">Дедлайн — 4 октября</div>
+        </div>
+        <div class="glass pill" id="deadlineStatus">в срок</div>
+      </div>
+    </div>
+
     <div class="glass card">
       <div class="row">
         <div>
@@ -189,7 +200,7 @@
     </div>
   </section>
 
-  <div class="footerNote">Быстрее — можно. Медленнее 30 дней на главу — нет.</div>
+  <div class="footerNote">Каждая глава — максимум 30 дней. Закрыла раньше — следующая открывается сразу.</div>
 </div>
 
 <nav class="bottom">
@@ -222,6 +233,24 @@
 
   function dateForDay(day){const d=new Date(startDate);d.setDate(d.getDate()+day-1);return d}
   function fmtDate(d){return new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long'}).format(d)}
+  function fmtShort(d){return new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'2-digit'}).format(d)}
+  function deadlineDayForStart(startDay){return Math.min(180,startDay+29)}
+  function currentChapterDeadlineDay(){return deadlineDayForStart(state.chapterStartDay)}
+  function currentChapterDaysRemaining(){return Math.max(0,currentChapterDeadlineDay()-currentGlobalDay()+1)}
+  function completedRecordFor(i){return (state.completed||[]).find(x=>x.chapter===i)}
+  function chapterDatesLabel(i){
+    if(i===state.chapter){
+      const s=dateForDay(state.chapterStartDay), d=dateForDay(currentChapterDeadlineDay());
+      return 'Старт '+fmtShort(s)+' → дедлайн '+fmtShort(d)+' · 30 дней максимум';
+    }
+    const rec=completedRecordFor(i);
+    if(rec && rec.startDay){
+      const s=dateForDay(rec.startDay), d=dateForDay(rec.deadlineDay||deadlineDayForStart(rec.startDay));
+      return 'Старт '+fmtShort(s)+' → дедлайн '+fmtShort(d)+' · завершена за '+rec.days+' дн.';
+    }
+    if(rec){return 'Завершена за '+rec.days+' дн. · '+rec.rank+'-rank'}
+    return '30 дней максимум';
+  }
   function currentGlobalDay(){
     const diff=Math.floor((today-startDate)/86400000)+1;
     return Math.max(1,Math.min(180,diff));
@@ -264,7 +293,16 @@
     $('#heroFill').style.width=p+'%'; $('#heroPct').textContent=p+'% главы';
     $('#workoutsNow').textContent=state.chapterWorkouts; $('#moneyNow').textContent=state.chapterMoney.toLocaleString('ru-RU');
     $('#moneyTarget').textContent='цель '+c.money.toLocaleString('ru-RU')+' ₽';
-    const left=Math.max(0,31-ad); $('#daysLeft').textContent=left+' дн.';
+    const left=currentChapterDaysRemaining(); $('#daysLeft').textContent=left+' дн.';
+    $('#daysRemainingToday').textContent=left;
+    const deadlineDate=dateForDay(currentChapterDeadlineDay());
+    $('#deadlineToday').textContent='Дедлайн — '+fmtDate(deadlineDate);
+    const status=$('#deadlineStatus');
+    if(left===0){status.textContent='срок вышел';status.style.color='var(--danger)'}
+    else if(left===1){status.textContent='последний день';status.style.color='var(--danger)'}
+    else if(left<=3){status.textContent='осталось совсем мало';status.style.color='var(--danger)'}
+    else if(left<=7){status.textContent='финальная неделя';status.style.color='var(--accent2)'}
+    else{status.textContent='в срок';status.style.color=''}
     $('#rankHint').textContent=ad<=20?'S до 20 дней':ad<=25?'A-rank':ad<=30?'B-rank':'Срок вышел';
   }
   function renderTasks(){
@@ -299,12 +337,13 @@
       const status=i<state.chapter?'COMPLETED':i===state.chapter?'ACTIVE':'LOCKED';
       return `<div class="glass chapter ${i>state.chapter?'locked':''}">
         <div class="row"><div><div class="eyebrow">Глава ${i+1}</div><div class="chapter-title" style="font-size:19px">${String(i+1).padStart(2,'0')} — ${c.name}</div></div><span class="tag">${status}</span></div>
-        ${i<=state.chapter?`<div class="stats" style="grid-template-columns:repeat(3,1fr)">
+        ${i<=state.chapter?`<div class="muted" style="font-size:12px;margin-top:9px">${chapterDatesLabel(i)}</div>
+        <div class="stats" style="grid-template-columns:repeat(3,1fr)">
           <div class="glass stat"><b>${c.workouts}</b><div class="muted" style="font-size:11px">тренировок</div></div>
           <div class="glass stat"><b>${c.money.toLocaleString('ru-RU')} ₽</b><div class="muted" style="font-size:11px">доход</div></div>
           <div class="glass stat"><b>1</b><div class="muted" style="font-size:11px">системный квест</div></div>
         </div><div class="muted" style="font-size:13px;margin-top:10px">${esc(c.system)}</div>`
-        :`<div class="muted" style="font-size:13px;margin-top:10px">Условия откроются после завершения предыдущей главы.</div>`}
+        :`<div class="muted" style="font-size:12px;margin-top:9px">Дедлайн: 30 дней после открытия</div><div class="muted" style="font-size:13px;margin-top:7px">Условия откроются после завершения предыдущей главы.</div>`}
       </div>`;
     }).join('');
   }
@@ -349,8 +388,8 @@
     if(ad>30)return;
     const ready=state.chapterWorkouts>=c.workouts&&state.chapterMoney>=c.money&&state.systemDone;
     if(!ready||state.chapter>=5)return;
-    state.completed.push({chapter:state.chapter,days:ad,rank:ad<=20?'S':ad<=25?'A':'B'});
-    state.chapter++;state.chapterStartDay=currentGlobalDay()+1;state.chapterMoney=0;state.chapterWorkouts=0;state.systemDone=false;save();render();switchTab('map');
+    state.completed.push({chapter:state.chapter,days:ad,rank:ad<=20?'S':ad<=25?'A':'B',startDay:state.chapterStartDay,deadlineDay:currentChapterDeadlineDay()});
+    state.chapter++;state.chapterStartDay=currentGlobalDay();state.chapterMoney=0;state.chapterWorkouts=0;state.systemDone=false;save();render();switchTab('map');
   };
   $('#resetAll').onclick=()=>{
     if(confirm('Точно сбросить весь прогресс и начать заново?')){state=fresh();save();render();switchTab('today')}
