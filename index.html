@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1d1f24">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="180 дней">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <title>180 дней — новая версия</title>
+  <style>
+    :root{
+      --bg:#1d1f24;--bg2:#252830;--card:rgba(45,49,58,.72);--card2:rgba(34,37,44,.82);
+      --text:#f6f7fb;--muted:#a7adba;--line:rgba(255,255,255,.10);
+      --accent:#9c7cff;--accent2:#61d8ff;--ok:#74e2b8;--danger:#ff7f95;
+      --shadow:0 18px 42px rgba(0,0,0,.22);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:
+      radial-gradient(circle at 15% 0%,rgba(106,88,255,.18),transparent 34%),
+      radial-gradient(circle at 95% 12%,rgba(69,194,255,.12),transparent 32%),
+      linear-gradient(180deg,#22252c 0%,#1a1c21 100%);
+      color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;min-height:100%}
+    body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+    button,input{font:inherit}
+    button{color:inherit}
+    .app{max-width:620px;margin:0 auto;padding:18px 14px 100px}
+    .glass{background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+      border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+      box-shadow:inset 0 1px rgba(255,255,255,.07),var(--shadow)}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:6px 2px 14px}
+    .eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+    h1{font-size:30px;line-height:1.04;margin:6px 0 0;letter-spacing:-.035em}
+    .pill{padding:9px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
+    .hero{border-radius:26px;padding:17px;margin-bottom:12px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .chapter-title{font-size:22px;font-weight:750;letter-spacing:-.02em;margin-top:4px}
+    .progress{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin:15px 0 8px}
+    .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .25s}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .stat{border-radius:18px;padding:12px}
+    .stat .num{font-size:21px;font-weight:760;margin-top:3px}
+    .muted{color:var(--muted)}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:sticky;top:8px;z-index:4;margin-bottom:12px}
+    .tab{border:1px solid var(--line);border-radius:16px;padding:12px 8px;background:rgba(36,39,46,.78)}
+    .tab.active{background:linear-gradient(145deg,rgba(156,124,255,.22),rgba(97,216,255,.12));border-color:rgba(156,124,255,.42)}
+    .panel{display:none}.panel.active{display:block}
+    .card{border-radius:24px;padding:16px;margin-bottom:12px}
+    .daynav{display:grid;grid-template-columns:46px 1fr 46px;align-items:center;gap:8px}
+    .iconbtn{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+    .daytitle{text-align:center;font-weight:720}
+    .tasks{display:grid;gap:8px;margin-top:14px}
+    .task{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:10px;padding:10px;border-radius:18px}
+    .check,.del{width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+    .task.done .tasktext{text-decoration:line-through;opacity:.55}
+    .task.done .check{background:linear-gradient(145deg,rgba(156,124,255,.34),rgba(97,216,255,.24));border-color:rgba(156,124,255,.52)}
+    .addrow{display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:8px;margin-top:10px}
+    input{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);border-radius:16px;padding:13px 14px;outline:none;font-size:16px}
+    input:focus{border-color:rgba(156,124,255,.6);box-shadow:0 0 0 3px rgba(156,124,255,.14)}
+    .addbtn,.primary{border:1px solid rgba(156,124,255,.44);background:linear-gradient(145deg,rgba(156,124,255,.32),rgba(97,216,255,.17));border-radius:16px;font-weight:750}
+    .addbtn{width:52px}
+    .primary{width:100%;padding:14px 16px}
+    .primary:disabled{opacity:.36}
+    .chapter{border-radius:22px;padding:15px;margin-bottom:10px}
+    .chapter.locked{opacity:.42}
+    .tag{font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:7px 9px;border-radius:999px;border:1px solid var(--line)}
+    .quest{padding:12px;border-radius:16px;margin-top:8px}
+    .questbtn{width:100%;text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--text);border-radius:16px;padding:12px}
+    .danger{color:var(--danger)}
+    .footerNote{text-align:center;font-size:12px;color:var(--muted);padding:7px 18px}
+    .bottom{
+      position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));
+      width:min(calc(100% - 24px),596px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+      background:rgba(28,30,36,.88);border:1px solid var(--line);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+      padding:8px;border-radius:22px;box-shadow:0 18px 50px rgba(0,0,0,.35);z-index:10
+    }
+    .bottom button{min-height:46px;border:0;background:transparent;border-radius:15px;color:var(--muted)}
+    .bottom button.active{color:var(--text);background:linear-gradient(145deg,rgba(156,124,255,.18),rgba(97,216,255,.1))}
+    .prestart{border-radius:24px;padding:18px;text-align:center;margin-bottom:12px}
+    .prestart .big{font-size:27px;font-weight:800;letter-spacing:-.03em}
+    @media (max-width:360px){h1{font-size:27px}.app{padding-left:10px;padding-right:10px}.stats{grid-template-columns:1fr}.chapter-title{font-size:20px}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div>
+      <div class="eyebrow">6 месяцев · новая версия</div>
+      <h1>180 дней</h1>
+    </div>
+    <div class="glass pill"><span id="globalDay">До старта</span></div>
+  </header>
+
+  <section id="prestart" class="glass prestart" hidden>
+    <div class="eyebrow">Старт</div>
+    <div class="big">5 сентября 2026</div>
+    <div class="muted" style="margin-top:6px">Первая тренировка — в DAY 1.</div>
+  </section>
+
+  <section class="glass hero">
+    <div class="row">
+      <div>
+        <div class="eyebrow">Текущая глава</div>
+        <div class="chapter-title" id="heroChapter">01 — ИЗ НУЛЯ</div>
+      </div>
+      <div class="glass pill" id="daysLeft">30 дней</div>
+    </div>
+    <div class="progress"><div class="fill" id="heroFill"></div></div>
+    <div class="row" style="font-size:13px;color:var(--muted)">
+      <span id="heroPct">0% главы</span><span id="rankHint">S до 20 дней</span>
+    </div>
+    <div class="stats">
+      <div class="glass stat"><div class="muted" style="font-size:12px">Тренировки</div><div class="num"><span id="workoutsNow">0</span> / 10</div></div>
+      <div class="glass stat"><div class="muted" style="font-size:12px">Заработано</div><div class="num"><span id="moneyNow">0</span> ₽</div><div class="muted" id="moneyTarget" style="font-size:12px">цель 50 000 ₽</div></div>
+    </div>
+  </section>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="today">Сегодня</button>
+    <button class="tab" data-tab="map">Карта</button>
+    <button class="tab" data-tab="progress">Прогресс</button>
+  </div>
+
+  <section class="panel active" id="today">
+    <div class="glass card">
+      <div class="daynav">
+        <button class="iconbtn" id="prevDay" aria-label="Предыдущий день">←</button>
+        <div>
+          <div class="eyebrow" style="text-align:center">Что я делаю</div>
+          <div class="daytitle" id="dateLabel">5 сентября</div>
+        </div>
+        <button class="iconbtn" id="nextDay" aria-label="Следующий день">→</button>
+      </div>
+      <div class="tasks" id="tasks"></div>
+      <form class="addrow" id="taskForm">
+        <input id="taskInput" maxlength="90" placeholder="Добавить свой пункт…">
+        <button class="addbtn" aria-label="Добавить">+</button>
+      </form>
+      <div class="muted" id="taskMsg" style="font-size:12px;margin-top:8px"></div>
+    </div>
+
+    <div class="glass card">
+      <div class="row">
+        <div>
+          <div class="eyebrow">Следующая тренировка</div>
+          <div style="font-weight:730;margin-top:4px" id="nextWorkout">5 сентября</div>
+        </div>
+        <div class="muted" style="font-size:13px;text-align:right">тренировка<br>2 дня отдыха</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="map">
+    <div id="chapterList"></div>
+  </section>
+
+  <section class="panel" id="progress">
+    <div class="glass card">
+      <div class="eyebrow">Заработано за челлендж</div>
+      <div style="font-size:30px;font-weight:800;margin-top:4px"><span id="totalMoney">0</span> ₽</div>
+      <div class="muted" style="font-size:13px">минимальная цель — 1 050 000 ₽</div>
+      <div class="progress"><div class="fill" id="totalMoneyFill"></div></div>
+      <form class="addrow" id="moneyForm">
+        <input id="moneyInput" inputmode="numeric" placeholder="Например, 15000">
+        <button class="addbtn" aria-label="Добавить деньги">+₽</button>
+      </form>
+      <div class="muted" id="moneyMsg" style="font-size:12px;margin-top:8px"></div>
+    </div>
+
+    <div class="glass card">
+      <div class="eyebrow">Зал</div>
+      <div style="font-size:24px;font-weight:780;margin-top:4px"><span id="totalWorkouts">0</span> тренировок</div>
+      <div class="muted" style="font-size:13px">ориентир ≈ 60 за 180 дней</div>
+      <div class="progress"><div class="fill" id="totalWorkoutFill"></div></div>
+    </div>
+
+    <div class="glass card">
+      <div class="eyebrow">Квесты текущей главы</div>
+      <div id="questList" style="margin-top:10px"></div>
+      <button class="primary" id="completeChapter" disabled style="margin-top:12px">Завершить главу</button>
+      <div class="muted" id="chapterMsg" style="font-size:12px;margin-top:8px">Нужно закрыть все 3 главных квеста.</div>
+    </div>
+
+    <div class="glass card">
+      <div class="eyebrow">Если хочется начать заново</div>
+      <button id="resetAll" class="primary" style="margin-top:10px;border-color:rgba(255,127,149,.34);background:rgba(255,127,149,.08)">Сбросить весь челлендж</button>
+    </div>
+  </section>
+
+  <div class="footerNote">Быстрее — можно. Медленнее 30 дней на главу — нет.</div>
+</div>
+
+<nav class="bottom">
+  <button data-tab="today" class="active">Сегодня</button>
+  <button data-tab="map">Карта</button>
+  <button data-tab="progress">Прогресс</button>
+</nav>
+
+<script>
+(()=>{
+  const START='2026-09-05';
+  const CH=[
+    {name:'ИЗ НУЛЯ',money:50000,workouts:10,system:'Запуск: 4 работы в портфолио, услуги, прайс и место, куда можно отправить клиента.'},
+    {name:'ПОВТОРИТЬ',money:100000,workouts:10,system:'Повторяемость: минимум 2 платных заказа и первые отзывы/кейсы.'},
+    {name:'ПОДНЯТЬ УРОВЕНЬ',money:150000,workouts:10,system:'Минимум один проект от 50 000 ₽ + сильная презентация услуги.'},
+    {name:'СИСТЕМА',money:200000,workouts:10,system:'Закрепить минимум один реально работающий канал получения клиентов.'},
+    {name:'МАСШТАБ',money:250000,workouts:10,system:'Увеличить результат без пропорционального роста нагрузки.'},
+    {name:'НОВАЯ ВЕРСИЯ',money:300000,workouts:10,system:'Закрепить новый уровень и собрать финальное До → После.'}
+  ];
+  const KEY='life180-state-v2';
+  const $=s=>document.querySelector(s);
+  const $$=s=>[...document.querySelectorAll(s)];
+  const startDate=new Date(2026,8,5);
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  const fresh=()=>({chapter:0,chapterStartDay:1,chapterMoney:0,totalMoney:0,chapterWorkouts:0,totalWorkouts:0,systemDone:false,selectedDay:1,tasks:{},completed:[],failed:false});
+  let state;
+  try{state=Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){state=fresh()}
+  const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+
+  function dateForDay(day){const d=new Date(startDate);d.setDate(d.getDate()+day-1);return d}
+  function fmtDate(d){return new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long'}).format(d)}
+  function currentGlobalDay(){
+    const diff=Math.floor((today-startDate)/86400000)+1;
+    return Math.max(1,Math.min(180,diff));
+  }
+  function challengeStarted(){return today>=startDate}
+  if(challengeStarted() && (!state.selectedDay || state.selectedDay===1)) state.selectedDay=currentGlobalDay();
+
+  function chapterDay(){return state.selectedDay-state.chapterStartDay+1}
+  function actualChapterDay(){return currentGlobalDay()-state.chapterStartDay+1}
+  function workoutDay(day){return day>=1 && (day-1)%3===0}
+  function taskKey(day){return 'd'+day}
+  function defaultTasks(day){
+    const a=[];
+    if(workoutDay(day)) a.push({id:'w'+day,text:'Тренировка №'+(Math.floor((day-1)/3)+1),done:false,workout:true});
+    if(day===1){
+      a.push({id:'startA',text:'Зафиксировать точку А: доход 0 ₽, фото и стартовые данные',done:false});
+      a.push({id:'project1',text:'Выбрать первый проект, который доведу до портфолио',done:false});
+    }
+    return a;
+  }
+  function getTasks(day){
+    if(!state.tasks[taskKey(day)]) state.tasks[taskKey(day)]=defaultTasks(day);
+    return state.tasks[taskKey(day)];
+  }
+  function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+  function nextWorkout(from){
+    for(let d=Math.max(1,from);d<=180;d++) if(workoutDay(d)) return d;
+    return null;
+  }
+  function chapterProgress(){
+    const c=CH[state.chapter];
+    return Math.round((Math.min(1,state.chapterWorkouts/c.workouts)+Math.min(1,state.chapterMoney/c.money)+(state.systemDone?1:0))/3*100);
+  }
+  function renderHeader(){
+    const gd=currentGlobalDay();
+    $('#globalDay').textContent=challengeStarted()?'DAY '+gd+' / 180':'До старта';
+    $('#prestart').hidden=challengeStarted();
+    const c=CH[state.chapter], p=chapterProgress(), ad=actualChapterDay();
+    $('#heroChapter').textContent=String(state.chapter+1).padStart(2,'0')+' — '+c.name;
+    $('#heroFill').style.width=p+'%'; $('#heroPct').textContent=p+'% главы';
+    $('#workoutsNow').textContent=state.chapterWorkouts; $('#moneyNow').textContent=state.chapterMoney.toLocaleString('ru-RU');
+    $('#moneyTarget').textContent='цель '+c.money.toLocaleString('ru-RU')+' ₽';
+    const left=Math.max(0,31-ad); $('#daysLeft').textContent=left+' дн.';
+    $('#rankHint').textContent=ad<=20?'S до 20 дней':ad<=25?'A-rank':ad<=30?'B-rank':'Срок вышел';
+  }
+  function renderTasks(){
+    $('#dateLabel').textContent=(state.selectedDay===currentGlobalDay()&&challengeStarted()?'Сегодня · ':'')+fmtDate(dateForDay(state.selectedDay));
+    const items=getTasks(state.selectedDay);
+    $('#tasks').innerHTML=items.length?items.map(t=>`<div class="glass task ${t.done?'done':''}">
+      <button class="check" data-check="${t.id}" aria-label="Готово">${t.done?'✓':''}</button>
+      <div class="tasktext">${esc(t.text)}</div>
+      <button class="del" data-del="${t.id}" aria-label="Удалить">×</button>
+    </div>`).join(''):'<div class="muted" style="padding:10px 2px">На этот день пока ничего нет.</div>';
+    $$('[data-check]').forEach(b=>b.onclick=()=>toggleTask(b.dataset.check));
+    $$('[data-del]').forEach(b=>b.onclick=()=>deleteTask(b.dataset.del));
+    $('#prevDay').disabled=state.selectedDay<=1; $('#nextDay').disabled=state.selectedDay>=180;
+    const n=nextWorkout(state.selectedDay); $('#nextWorkout').textContent=n?fmtDate(dateForDay(n))+' · DAY '+n:'—';
+  }
+  function toggleTask(id){
+    const t=getTasks(state.selectedDay).find(x=>x.id===id); if(!t)return;
+    const was=t.done; t.done=!t.done;
+    if(t.workout){
+      if(!was&&t.done){state.totalWorkouts++; if(state.selectedDay>=state.chapterStartDay)state.chapterWorkouts++}
+      if(was&&!t.done){state.totalWorkouts=Math.max(0,state.totalWorkouts-1); if(state.selectedDay>=state.chapterStartDay)state.chapterWorkouts=Math.max(0,state.chapterWorkouts-1)}
+    }
+    save(); render();
+  }
+  function deleteTask(id){
+    const arr=getTasks(state.selectedDay), i=arr.findIndex(x=>x.id===id); if(i<0)return;
+    const t=arr[i]; if(t.workout&&t.done){state.totalWorkouts=Math.max(0,state.totalWorkouts-1);state.chapterWorkouts=Math.max(0,state.chapterWorkouts-1)}
+    arr.splice(i,1); save(); render();
+  }
+  function renderMap(){
+    $('#chapterList').innerHTML=CH.map((c,i)=>{
+      const status=i<state.chapter?'COMPLETED':i===state.chapter?'ACTIVE':'LOCKED';
+      return `<div class="glass chapter ${i>state.chapter?'locked':''}">
+        <div class="row"><div><div class="eyebrow">Глава ${i+1}</div><div class="chapter-title" style="font-size:19px">${String(i+1).padStart(2,'0')} — ${c.name}</div></div><span class="tag">${status}</span></div>
+        ${i<=state.chapter?`<div class="stats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="glass stat"><b>${c.workouts}</b><div class="muted" style="font-size:11px">тренировок</div></div>
+          <div class="glass stat"><b>${c.money.toLocaleString('ru-RU')} ₽</b><div class="muted" style="font-size:11px">доход</div></div>
+          <div class="glass stat"><b>1</b><div class="muted" style="font-size:11px">системный квест</div></div>
+        </div><div class="muted" style="font-size:13px;margin-top:10px">${esc(c.system)}</div>`
+        :`<div class="muted" style="font-size:13px;margin-top:10px">Условия откроются после завершения предыдущей главы.</div>`}
+      </div>`;
+    }).join('');
+  }
+  function renderProgress(){
+    const c=CH[state.chapter], ad=actualChapterDay(), expired=ad>30;
+    $('#totalMoney').textContent=state.totalMoney.toLocaleString('ru-RU');
+    $('#totalMoneyFill').style.width=Math.min(100,state.totalMoney/1050000*100)+'%';
+    $('#totalWorkouts').textContent=state.totalWorkouts; $('#totalWorkoutFill').style.width=Math.min(100,state.totalWorkouts/60*100)+'%';
+    $('#questList').innerHTML=`
+      <div class="glass quest row"><span>Зал</span><b>${state.chapterWorkouts} / ${c.workouts}</b></div>
+      <div class="glass quest row"><span>Деньги</span><b>${state.chapterMoney.toLocaleString('ru-RU')} / ${c.money.toLocaleString('ru-RU')} ₽</b></div>
+      <button class="questbtn row" id="systemQuest"><span>${esc(c.system)}</span><b>${state.systemDone?'✓':'○'}</b></button>`;
+    $('#systemQuest').onclick=()=>{state.systemDone=!state.systemDone;save();render()};
+    const ready=state.chapterWorkouts>=c.workouts&&state.chapterMoney>=c.money&&state.systemDone&&!expired;
+    $('#completeChapter').disabled=!ready || state.chapter===5;
+    if(expired) $('#chapterMsg').innerHTML='<span class="danger">30 дней закончились. Эта глава не может быть закрыта с опозданием.</span>';
+    else if(ready && state.chapter<5) $('#chapterMsg').textContent='Все условия выполнены — следующая глава открывается сразу.';
+    else if(ready && state.chapter===5) $('#chapterMsg').textContent='Финальная глава выполнена. Челлендж завершён.';
+    else $('#chapterMsg').textContent='Нужно закрыть все 3 главных квеста до конца 30-го дня.';
+  }
+  function render(){renderHeader();renderTasks();renderMap();renderProgress()}
+  function switchTab(name){
+    $$('.tab,.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+    $$('.panel').forEach(p=>p.classList.toggle('active',p.id===name));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  $$('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+  $('#prevDay').onclick=()=>{state.selectedDay=Math.max(1,state.selectedDay-1);save();render()};
+  $('#nextDay').onclick=()=>{state.selectedDay=Math.min(180,state.selectedDay+1);save();render()};
+  $('#taskForm').onsubmit=e=>{
+    e.preventDefault(); const v=$('#taskInput').value.trim();
+    if(!v){$('#taskMsg').textContent='Напиши задачу.';return}
+    getTasks(state.selectedDay).push({id:'u'+Date.now(),text:v,done:false}); $('#taskInput').value=''; $('#taskMsg').textContent='Добавлено.'; save();render();
+  };
+  $('#moneyForm').onsubmit=e=>{
+    e.preventDefault(); const v=Math.floor(Number($('#moneyInput').value.replace(/\s/g,'').replace(',','.')));
+    if(!Number.isFinite(v)||v<=0||v>100000000){$('#moneyMsg').textContent='Введите сумму больше 0.';return}
+    state.totalMoney+=v;state.chapterMoney+=v;$('#moneyInput').value='';$('#moneyMsg').textContent='+'+v.toLocaleString('ru-RU')+' ₽';save();render();
+  };
+  $('#completeChapter').onclick=()=>{
+    const c=CH[state.chapter],ad=actualChapterDay();
+    if(ad>30)return;
+    const ready=state.chapterWorkouts>=c.workouts&&state.chapterMoney>=c.money&&state.systemDone;
+    if(!ready||state.chapter>=5)return;
+    state.completed.push({chapter:state.chapter,days:ad,rank:ad<=20?'S':ad<=25?'A':'B'});
+    state.chapter++;state.chapterStartDay=currentGlobalDay()+1;state.chapterMoney=0;state.chapterWorkouts=0;state.systemDone=false;save();render();switchTab('map');
+  };
+  $('#resetAll').onclick=()=>{
+    if(confirm('Точно сбросить весь прогресс и начать заново?')){state=fresh();save();render();switchTab('today')}
+  };
+  if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+  render();
+})();
+</script>
+</body>
+</html>
